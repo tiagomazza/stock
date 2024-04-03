@@ -1,26 +1,27 @@
 import streamlit as st
 import gspread
-from streamlit.credentials import get_credentials
+from google.oauth2 import service_account
 
-# Obtém as credenciais do Streamlit Secrets
-credentials = get_credentials()["gcp"]["access_token"]
+# Obter as credenciais do Streamlit Secrets
+credentials_json = st.secrets["gcp_service_account"]
 
-# Autentica com o Google Sheets
+# Autenticar com o Google Sheets usando as credenciais
+credentials = service_account.Credentials.from_service_account_info(credentials_json)
 gc = gspread.authorize(credentials)
 
-# Abre a planilha
+# Abrir a planilha
 spreadsheet_url = "https://docs.google.com/spreadsheets/d/18PgkCySwFnghk_iHsW6bpzkqjnbtsbG4y-UH_dinO_E/edit?usp=drive_link"
 sh = gc.open_by_url(spreadsheet_url)
 
-# Lê os dados da planilha
+# Ler os dados da planilha
 worksheet = sh.sheet1
 data = worksheet.get_all_values()
 
-# Mostra os dados lidos da planilha
+# Mostrar os dados lidos da planilha
 st.write("Dados da planilha:")
 st.write(data)
 
-# Escreve dados na planilha
+# Escrever dados na planilha
 if st.button("Escrever na planilha"):
     new_data = [
         ["Novo Dado 1", "Novo Dado 2", "Novo Dado 3"],
@@ -29,9 +30,9 @@ if st.button("Escrever na planilha"):
     worksheet.append_rows(new_data)
     st.success("Dados adicionados com sucesso!")
 
-# Atualiza os dados lidos da planilha
+# Atualizar os dados lidos da planilha
 data = worksheet.get_all_values()
 
-# Mostra os dados atualizados da planilha
+# Mostrar os dados atualizados da planilha
 st.write("Dados atualizados da planilha:")
 st.write(data)
