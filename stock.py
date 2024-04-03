@@ -31,11 +31,7 @@ st.divider()
 st.write("CRUD Operations:")
 
 # Reading credentials from Streamlit secrets
-try:
-    credentials_dict = json.loads(st.secrets["gsheets"])
-except KeyError:
-    st.error("Google Sheets credentials not found in Streamlit secrets. Please set up the credentials.")
-    st.stop()
+
 
 # You can access each credential like this:
 # service_account_email = credentials_dict["client_email"]
