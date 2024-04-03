@@ -18,7 +18,8 @@ def create_orders_dataframe():
     })
 
 # Carregar as credenciais do arquivo TOML
-credentials_toml = toml.loads(st.secrets["gsheets"])
+credentials_toml_string = st.secrets["gsheets"]
+credentials_toml = toml.loads(credentials_toml_string)
 
 # Criar o dataframe de pedidos
 orders = create_orders_dataframe()
