@@ -7,7 +7,7 @@ try:
 
     # Lê os dados da planilha
     df = conn.read(
-        spreadsheet="https://docs.google.com/spreadsheets/d/18PgkCySwFnghk_iHsW6bpzkqjnbtsbG4y-UH_dinO_E/edit#gid=0",
+        spreadsheet="https://docs.google.com/spreadsheets/d/18PgkCySwFnghk_iHsW6bpzkqjnbtsbG4y-UH_dinO_E/edit?usp=drive_link",
         worksheet="Pag1",
         ttl="10m",
         usecols=[0, 1],
