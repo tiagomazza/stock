@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import toml
 
 # Título da aplicação
 st.title("Google Sheets as a Database")
@@ -17,7 +18,7 @@ def create_orders_dataframe():
     })
 
 # Carregar as credenciais do arquivo TOML
-credentials_toml = st.secrets["gsheets"]
+credentials_toml = toml.loads(st.secrets["gsheets"])
 
 # Criar o dataframe de pedidos
 orders = create_orders_dataframe()
