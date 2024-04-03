@@ -1,32 +1,74 @@
 import streamlit as st
-from gspread_dataframe import get_as_dataframe, set_with_dataframe
+import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import toml
 
+# Título da aplicação
 st.title("Google Sheets as a Database")
 
-# Accessing Google Sheets credentials from Streamlit Secrets
-credentials_dict = st.secrets["gsheets"]
+# Função para criar um dataframe de exemplo
+def create_orders_dataframe():
+    return pd.DataFrame({
+        'OrderID': [101, 102, 103, 104, 105],
+        'CustomerName': ['Alice', 'Bob', 'Charlie', 'David', 'Eve'],
+        'ProductList': ['ProductA, ProductB', 'ProductC', 'ProductA, ProductC', 'ProductB, ProductD', 'ProductD'],
+        'TotalPrice': [200, 150, 250, 300, 100],
+        'OrderDate': ['2023-08-18', '2023-08-19', '2023-08-19', '2023-08-20', '2023-08-20']
+    })
 
-# Authenticate with Google
-scope = [
-    "https://spreadsheets.google.com/feeds",
-    "https://www.googleapis.com/auth/drive",
-]
-creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
+# Carregar as credenciais do arquivo TOML
+credentials_toml = toml.loads(st.secrets["gsheets"])
+
+# Extrair as informações necessárias do TOML
+project_id = credentials_toml["type"]["project_id"]
+private_key_id = credentials_toml["type"]["private_key_id"]
+private_key = credentials_toml["type"]["private_key"]
+client_email = credentials_toml["type"]["client_email"]
+client_id = credentials_toml["type"]["client_id"]
+auth_uri = credentials_toml["type"]["auth_uri"]
+token_uri = credentials_toml["type"]["token_uri"]
+auth_provider_x509_cert_url = credentials_toml["type"]["auth_provider_x509_cert_url"]
+client_x509_cert_url = credentials_toml["type"]["client_x509_cert_url"]
+
+# Criar o dataframe de pedidos
+orders = create_orders_dataframe()
+
+# Atualizar a coluna TotalPrice no dataframe de pedidos para criar updated_orders
+updated_orders = orders.copy()
+updated_orders['TotalPrice'] = updated_orders['TotalPrice'] * 100
+
+# Mostrar os dataframes na interface do Streamlit
+with st.expander("Data ⤵"):
+    st.write("Orders")
+    st.dataframe(orders)
+    st.write("Updated Orders")
+    st.dataframe(updated_orders)
+
+# Estabelecer uma conexão com o Google Sheets usando as credenciais
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_toml, scope)
 client = gspread.authorize(creds)
 
-# Open Google Sheets
-spreadsheet_url = "https://docs.google.com/spreadsheets/d/18PgkCySwFnghk_iHsW6bpzkqjnbtsbG4y-UH_dinO_E/edit#gid=0"
-sheet = client.open_by_url(spreadsheet_url).sheet1
+# Abrir a planilha do Google Sheets
+spreadsheet_url = st.secrets["gsheets"]["spreadsheet"]
+worksheet = client.open_by_url(spreadsheet_url).sheet1
 
-# Read data from Google Sheets
-df = get_as_dataframe(sheet)
-st.write("Data from Google Sheets:")
-st.write(df)
+# Operações CRUD com base na entrada do usuário
+if st.button("New Worksheet"):
+    worksheet.clear()
+    worksheet.append_rows(orders.values.tolist())
+    st.success("Worksheet Created 🎉")
 
-# Write data to Google Sheets
-if st.button("Write to Google Sheets"):
-    new_data = pd.DataFrame({"Column1": [1, 2, 3], "Column2": ["A", "B", "C"]})
-    set_with_dataframe(sheet, new_data)
-    st.success("Data written to Google Sheets successfully!")
+if st.button("Calculate Total Orders Sum"):
+    total_orders_price = worksheet.acell('G1').value
+    st.write(f"Total Orders Price: {total_orders_price}")
+
+if st.button("Update Worksheet"):
+    worksheet.clear()
+    worksheet.append_rows(updated_orders.values.tolist())
+    st.success("Worksheet Updated 🤓")
+
+if st.button("Clear Worksheet"):
+    worksheet.clear()
+    st.success("Worksheet Cleared 🧹")
