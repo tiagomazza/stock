@@ -4,7 +4,6 @@ from streamlit_gsheets import GSheetsConnection
 # Create a connection object.
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-<<<<<<< HEAD
 df = conn.read(
     worksheet="Sheet1",
     ttl="10m",
