@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import toml
 
 # Título da aplicação
 st.title("Google Sheets as a Database")
@@ -18,18 +17,7 @@ def create_orders_dataframe():
     })
 
 # Carregar as credenciais do arquivo TOML
-credentials_toml = toml.loads(st.secrets["gsheets"])
-
-# Extrair as informações necessárias do TOML
-project_id = credentials_toml["type"]["project_id"]
-private_key_id = credentials_toml["type"]["private_key_id"]
-private_key = credentials_toml["type"]["private_key"]
-client_email = credentials_toml["type"]["client_email"]
-client_id = credentials_toml["type"]["client_id"]
-auth_uri = credentials_toml["type"]["auth_uri"]
-token_uri = credentials_toml["type"]["token_uri"]
-auth_provider_x509_cert_url = credentials_toml["type"]["auth_provider_x509_cert_url"]
-client_x509_cert_url = credentials_toml["type"]["client_x509_cert_url"]
+credentials_toml = st.secrets["gsheets"]
 
 # Criar o dataframe de pedidos
 orders = create_orders_dataframe()
@@ -51,7 +39,7 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(credentials_toml, scope
 client = gspread.authorize(creds)
 
 # Abrir a planilha do Google Sheets
-spreadsheet_url = st.secrets["gsheets"]["spreadsheet"]
+spreadsheet_url = credentials_toml["connections.gsheets"]["spreadsheet"]
 worksheet = client.open_by_url(spreadsheet_url).sheet1
 
 # Operações CRUD com base na entrada do usuário
