@@ -7,7 +7,7 @@ try:
 
     # Lê os dados da planilha
     df = conn.read(
-        worksheet="page",
+        worksheet="Pag1",
         ttl="10m",
         usecols=[0, 1],
         nrows=3,
