@@ -1,34 +1,64 @@
 import streamlit as st
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+import pandas as pd
 import json
 
-# Configurações da aplicação Streamlit
-st.title("Escrever no Google Sheets")
-st.write("Esta aplicação escreve dados em uma planilha do Google Sheets.")
+st.title("Google Sheets as a Database")
 
-# Acessando os segredos do Streamlit Cloud
-secrets = st.secrets
+# Function to create a sample Orders dataframe
+def create_orders_dataframe():
+    return pd.DataFrame({
+        'OrderID': [101, 102, 103, 104, 105],
+        'CustomerName': ['Alice', 'Bob', 'Charlie', 'David', 'Eve'],
+        'ProductList': ['ProductA, ProductB', 'ProductC', 'ProductA, ProductC', 'ProductB, ProductD', 'ProductD'],
+        'TotalPrice': [200, 150, 250, 300, 100],
+        'OrderDate': ['2023-08-18', '2023-08-19', '2023-08-19', '2023-08-20', '2023-08-20']
+    })
 
-# Obter as credenciais do segredo
-credentials_dict = json.loads(secrets["google_credentials"])
+# Create the Orders dataframe
+orders = create_orders_dataframe()
 
-# Autenticação e acesso ao Google Sheets
-scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_dict, scope)
-client = gspread.authorize(credentials)
+# Update the TotalPrice column in the orders dataframe to create updated_orders
+updated_orders = orders.copy()
+updated_orders['TotalPrice'] = updated_orders['TotalPrice'] * 100
 
-# Abrir a planilha do Google Sheets
-spreadsheet_url = "https://docs.google.com/spreadsheets/d/18PgkCySwFnghk_iHsW6bpzkqjnbtsbG4y-UH_dinO_E/edit#gid=0"
-sheet = client.open_by_url(spreadsheet_url).sheet1
+with st.expander("Data ⤵"):
+    st.write("Orders")
+    st.dataframe(orders)
+    st.write("Updated Orders")
+    st.dataframe(updated_orders)
 
-# Função para escrever dados na planilha
-def escrever_dados(dados):
-    sheet.append_row(dados)
-    st.success("Dados adicionados com sucesso!")
+st.divider()
+st.write("CRUD Operations:")
 
-# Interface do Streamlit para escrever dados
-dados_input = st.text_input("Digite os dados separados por vírgula:")
-if st.button("Adicionar Dados"):
-    dados = dados_input.split(",")
-    escrever_dados(dados)
+# Reading credentials from Streamlit secrets
+try:
+    credentials_dict = json.loads(st.secrets["gsheets"])
+except KeyError:
+    st.error("Google Sheets credentials not found in Streamlit secrets. Please set up the credentials.")
+    st.stop()
+
+# You can access each credential like this:
+# service_account_email = credentials_dict["client_email"]
+# private_key = credentials_dict["private_key"]
+
+# You can also directly pass the credentials dictionary to the connection
+# Establishing a Google Sheets connection
+conn = st.experimental_gsheets(credentials_dict)
+
+# Taking actions based on user input
+if st.button("New Worksheet"):
+    conn.create(worksheet="Orders", data=orders)
+    st.success("Worksheet Created 🎉")
+
+if st.button("Calculate Total Orders Sum"):
+    sql = 'SELECT SUM("TotalPrice") as "TotalOrdersPrice" FROM Orders;'
+    total_orders = conn.query(sql=sql)  # default ttl=3600 seconds / 60 min
+    st.dataframe(total_orders)
+
+if st.button("Update Worksheet"):
+    conn.update(worksheet="Orders", data=updated_orders)
+    st.success("Worksheet Updated 🤓")
+
+if st.button("Clear Worksheet"):
+    conn.clear(worksheet="Orders")
+    st.success("Worksheet Cleared 🧹")
