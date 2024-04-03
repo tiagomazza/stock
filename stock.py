@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from streamlit_gsheets import GSheetsConnection
+from gsheet_connection import GSheetConnection
 
 st.title("Google Sheets as a DataBase")
 
@@ -30,7 +30,7 @@ with st.expander("Data ⤵"):
 st.divider()
 st.write("CRUD Operations:")
 # Establishing a Google Sheets connection
-conn = st.connection("gsheets", type=GSheetsConnection)
+conn = st.connection("gsheets", type=GSheetConnection)
 
 # Taking actions based on user input
 if st.button("New Worksheet"):
