@@ -15,6 +15,6 @@ df = conn.read(
 
 for row in df.itertuples():
     st.write(f"{row.name} has a :{row.pet}:")
-except Exception as e:
-st.error(f"Erro ao ler dados do Google Sheets: {e}")
+    except Exception as e:
+    st.error(f"Erro ao ler dados do Google Sheets: {e}")
 
