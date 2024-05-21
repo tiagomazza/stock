@@ -9,6 +9,13 @@ wcapi = API(
     version="wc/v3"
 )
 
+st.title("Gerenciamento de Estoque WooCommerce")
+
+# Formulário para entrada de dados
+product_id = st.text_input("ID do Produto")
+variation_id = st.text_input("ID da Variação (deixe em branco se não for uma variação)")
+new_stock = st.number_input("Novo Estoque", min_value=0, step=1)
+
 if st.button("Atualizar Estoque"):
     if product_id and new_stock is not None:
         if variation_id:
