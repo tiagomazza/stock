@@ -3,9 +3,9 @@ from woocommerce import API
 
 # Configuração da API do WooCommerce
 wcapi = API(
-    url="https://sua-loja.com",  # Substitua pelo URL da sua loja
-    consumer_key="ck_xxxxxxx",   # Substitua pela sua Consumer Key
-    consumer_secret="cs_xxxxxxx",  # Substitua pelo seu Consumer Secret
+    url="https://shop.quintaclandestina.pt",  # Substitua pelo URL da sua loja
+    consumer_key="ck_326fe2832e12ff0ee0f2dd4a32e87ee0ceada496",   # Substitua pela sua Consumer Key
+    consumer_secret="cs_44ad7b5fc9a38d6212240cbded4119636d003545",
     version="wc/v3"
 )
 
