@@ -29,4 +29,3 @@ if st.button("Atualizar Estoque"):
             st.error(f"Erro ao atualizar estoque: {response.get('message', 'Erro desconhecido')}")
     else:
         st.warning("Por favor, insira um ID de produto válido e quantidade de estoque.")
-
